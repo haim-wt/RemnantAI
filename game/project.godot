@@ -27,20 +27,14 @@ SceneManager="*res://scripts/autoloads/scene_manager.gd"
 
 [debug]
 
-gdscript/warnings/unused_variable=1
-gdscript/warnings/unused_parameter=1
-gdscript/warnings/shadowed_variable=1
 gdscript/warnings/untyped_declaration=1
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=2
-window/size/resizable=true
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
-window/vsync/vsync_mode=1
 
 [dotnet]
 
@@ -50,15 +44,6 @@ project/assembly_name="Remnant"
 
 naming/scene_name_casing=1
 naming/script_name_casing=1
-
-[filesystem]
-
-import/blender/enabled=true
-
-[gui]
-
-theme/default_font_antialiasing=1
-theme/default_font_subpixel_positioning=1
 
 [input]
 
@@ -107,6 +92,21 @@ pause={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194305,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
+roll_left={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":81,"key_label":0,"unicode":113,"location":0,"echo":false,"script":null)
+]
+}
+roll_right={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":69,"key_label":0,"unicode":101,"location":0,"echo":false,"script":null)
+]
+}
+toggle_camera={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":67,"key_label":0,"unicode":99,"location":0,"echo":false,"script":null)
+]
+}
 
 [layer_names]
 
@@ -125,10 +125,8 @@ common/physics_ticks_per_second=120
 
 [rendering]
 
-renderer/rendering_method="forward_plus"
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
 textures/default_filters/anisotropic_filtering_level=4
 anti_aliasing/quality/msaa_3d=2
-anti_aliasing/quality/screen_space_aa=1
-lights_and_shadows/directional_shadow/size=4096
-lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+anti_aliasing/quality/screen_space_aa=1

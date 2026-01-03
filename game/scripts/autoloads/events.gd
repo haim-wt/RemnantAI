@@ -70,6 +70,9 @@ signal hud_update_requested(data: Dictionary)
 ## Emitted to show/hide loading screen
 signal loading_screen_toggled(visible: bool, message: String)
 
+## Emitted when camera mode changes
+signal camera_mode_changed(mode: int)
+
 # -----------------------------------------------------------------------------
 # Network Events
 # -----------------------------------------------------------------------------

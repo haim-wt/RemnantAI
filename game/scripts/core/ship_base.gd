@@ -46,10 +46,16 @@ enum FlightAssistLevel {
 
 @export_group("Flight Assist")
 ## Default flight assist level
-@export var default_assist_level: FlightAssistLevel = FlightAssistLevel.MEDIUM
+@export var default_assist_level: FlightAssistLevel = FlightAssistLevel.HIGH
 
 ## How aggressively assist corrects velocity (higher = snappier)
-@export var assist_strength: float = 2.0
+@export var assist_strength: float = 10.0
+
+## How strongly rotation is dampened when no input (higher = stops faster)
+@export var rotation_damping: float = 8.0
+
+## Linear velocity damping when no thrust (acts like space brake)
+@export var velocity_damping: float = 2.0
 
 # -----------------------------------------------------------------------------
 # State
@@ -202,13 +208,15 @@ func _apply_flight_assist(delta: float) -> void:
 			_assist_maintain_velocity_direction(delta)
 
 
-## Dampens unwanted rotation when no input
+## Dampens unwanted rotation when no input - makes ship feel stable
 func _assist_dampen_rotation(delta: float) -> void:
+	# Always apply some damping, even with input (prevents spin-out)
+	var damping_strength := rotation_damping
 	if not rotation_input.is_zero_approx():
-		return
+		damping_strength *= 0.3  # Less damping when actively rotating
 
-	# Apply counter-torque proportional to angular velocity
-	var damping_torque := -angular_velocity * torque_max * 0.5
+	# Apply strong counter-torque to stop rotation quickly
+	var damping_torque := -angular_velocity * torque_max * damping_strength
 	apply_torque(damping_torque)
 
 
@@ -227,7 +235,17 @@ func _assist_maintain_heading(delta: float) -> void:
 
 ## Maintains velocity in the direction the ship is pointing
 func _assist_maintain_velocity_direction(delta: float) -> void:
-	if linear_velocity.length_squared() < 1.0:
+	var current_speed := linear_velocity.length()
+
+	# Apply velocity damping when not thrusting (space brake effect)
+	if thrust_input.is_zero_approx() and current_speed > 0.5:
+		var brake_force := -linear_velocity * mass * velocity_damping
+		apply_central_force(brake_force * delta)
+
+	if current_speed < 0.5:
+		# At very low speeds, just zero out velocity to prevent drift
+		if current_speed > 0.01:
+			linear_velocity = linear_velocity.lerp(Vector3.ZERO, delta * 5.0)
 		return
 
 	var current_direction := linear_velocity.normalized()
@@ -235,11 +253,10 @@ func _assist_maintain_velocity_direction(delta: float) -> void:
 
 	# Calculate the correction needed
 	var correction := desired_direction - current_direction
-	var current_speed := linear_velocity.length()
 
-	# Apply corrective force
+	# Apply very strong corrective force - ship goes where it's pointing
 	var correction_force := correction * current_speed * mass * assist_strength
-	apply_central_force(correction_force * delta * 60.0)  # Normalize for framerate
+	apply_central_force(correction_force * delta)
 
 # -----------------------------------------------------------------------------
 # State Queries

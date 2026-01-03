@@ -61,7 +61,7 @@ var _private_variable: float  # Prefix with underscore
 
 # Functions: snake_case
 func calculate_thrust() -> Vector3:
-    pass
+	pass
 
 # Signals: snake_case (past tense for events)
 signal ship_destroyed(ship: Node3D)
@@ -69,10 +69,10 @@ signal velocity_changed(new_velocity: Vector3)
 
 # Enums: PascalCase for type, SCREAMING_SNAKE_CASE for values
 enum FlightAssistLevel {
-    OFF = 0,
-    LOW = 1,
-    MEDIUM = 2,
-    HIGH = 3,
+	OFF = 0,
+	LOW = 1,
+	MEDIUM = 2,
+	HIGH = 3,
 }
 ```
 
@@ -89,12 +89,12 @@ Always use static typing for better AI code generation and error catching:
 var speed: float = 0.0
 var velocity: Vector3 = Vector3.ZERO
 func get_thrust() -> Vector3:
-    return Vector3.ZERO
+	return Vector3.ZERO
 
 # Avoid
 var speed = 0.0
 func get_thrust():
-    return Vector3.ZERO
+	return Vector3.ZERO
 ```
 
 ### Exports
@@ -127,7 +127,7 @@ extends RigidBody3D
 ## Calculate the required thrust vector to reach target velocity.
 ## Returns Vector3.ZERO if already at target.
 func calculate_thrust_to_target(target_velocity: Vector3) -> Vector3:
-    pass
+	pass
 ```
 
 ### Script Organization
@@ -161,15 +161,15 @@ var _private_var: String = ""
 
 # 8. Lifecycle methods (_ready, _process, etc.)
 func _ready() -> void:
-    pass
+	pass
 
 # 9. Public methods
 func do_something() -> void:
-    pass
+	pass
 
 # 10. Private methods
 func _internal_helper() -> void:
-    pass
+	pass
 ```
 
 ---
@@ -186,10 +186,10 @@ Events.ship_destroyed.emit(self, attacker)
 
 # Listening to events
 func _ready() -> void:
-    Events.ship_destroyed.connect(_on_ship_destroyed)
+	Events.ship_destroyed.connect(_on_ship_destroyed)
 
 func _on_ship_destroyed(ship: Node3D, attacker: Node3D) -> void:
-    pass
+	pass
 ```
 
 ### State Management
@@ -199,7 +199,7 @@ Use `GameState` for global game state:
 ```gdscript
 # Check state
 if GameState.is_match_active():
-    pass
+	pass
 
 # Modify state (through methods, not direct assignment)
 GameState.start_match(GameState.GameMode.RACING, config)
@@ -280,14 +280,14 @@ Use `ObjectPool` for frequently spawned objects:
 var projectile_pool: ObjectPool
 
 func _ready() -> void:
-    var scene := preload("res://scenes/projectile.tscn")
-    projectile_pool = ObjectPool.create(scene, 50, 200)
-    add_child(projectile_pool)
+	var scene := preload("res://scenes/projectile.tscn")
+	projectile_pool = ObjectPool.create(scene, 50, 200)
+	add_child(projectile_pool)
 
 func fire() -> void:
-    var projectile := projectile_pool.acquire()
-    if projectile:
-        projectile.global_position = muzzle.global_position
+	var projectile := projectile_pool.acquire()
+	if projectile:
+		projectile.global_position = muzzle.global_position
 ```
 
 ### Avoid in Hot Paths
@@ -304,7 +304,7 @@ func fire() -> void:
 
 # Bad: Lookup every frame
 func _physics_process(delta: float) -> void:
-    var target := get_node("Target")  # Don't do this
+	var target := get_node("Target")  # Don't do this
 ```
 
 ---

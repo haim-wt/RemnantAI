@@ -1,6 +1,6 @@
 ## Main entry point for the game.
 ## Handles initial setup and scene orchestration.
-extends Node
+extends Node3D
 
 # -----------------------------------------------------------------------------
 # Lifecycle
@@ -51,28 +51,198 @@ func _load_debug_scene() -> void:
 
 
 func _create_test_environment() -> void:
-	# Add a camera
-	var camera := Camera3D.new()
-	camera.name = "DebugCamera"
-	camera.position = Vector3(0, 5, 10)
-	camera.look_at(Vector3.ZERO)
-	camera.current = true
-	add_child(camera)
+	print("Setting up flight test scene...")
 
-	# Add some visual reference points
-	var origin_marker := _create_debug_marker(Vector3.ZERO, Color.WHITE)
-	add_child(origin_marker)
+	_setup_environment()
+	_setup_arena()
+	_setup_player_ship()
+	_setup_camera()
+	_setup_hud()
+	_setup_debug_visualization()
 
-	# Add axis indicators
-	var x_marker := _create_debug_marker(Vector3(10, 0, 0), Color.RED)
-	var y_marker := _create_debug_marker(Vector3(0, 10, 0), Color.GREEN)
-	var z_marker := _create_debug_marker(Vector3(0, 0, 10), Color.BLUE)
-	add_child(x_marker)
-	add_child(y_marker)
-	add_child(z_marker)
+	print("Flight test scene ready!")
+	print("Controls: Mouse - Steer, W/S - Throttle Up/Down, Q/E - Roll")
+	print("Shift - Boost, C - Toggle Camera, ESC - Pause")
 
-	print("Test environment created. Use this for development.")
-	print("Press ESC to release mouse, ESC again to capture.")
+
+func _setup_environment() -> void:
+	# Create environment for space rendering
+	var environment_node := WorldEnvironment.new()
+	var env := Environment.new()
+
+	# Space-like settings with better ambient lighting
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0.02, 0.02, 0.05)  # Very dark blue instead of pure black
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.15, 0.15, 0.2)  # Stronger ambient to soften shadows
+	env.ambient_light_energy = 0.5
+
+	# Add subtle fog for depth perception
+	env.fog_enabled = true
+	env.fog_light_color = Color(0.1, 0.1, 0.15)
+	env.fog_density = 0.0001  # Very subtle
+	env.fog_aerial_perspective = 0.3
+
+	environment_node.environment = env
+	add_child(environment_node)
+
+	# Add directional light (sun)
+	var sun := DirectionalLight3D.new()
+	sun.name = "Sun"
+	sun.light_energy = 1.2
+	sun.light_color = Color(1.0, 0.95, 0.9)
+	sun.shadow_enabled = true
+	sun.shadow_blur = 1.0
+	sun.rotation_degrees = Vector3(-45, 45, 0)
+	add_child(sun)
+
+	# Add secondary fill light to reduce harsh shadows
+	var fill_light := DirectionalLight3D.new()
+	fill_light.name = "FillLight"
+	fill_light.light_energy = 0.3
+	fill_light.light_color = Color(0.6, 0.7, 1.0)  # Cool blue fill
+	fill_light.shadow_enabled = false
+	fill_light.rotation_degrees = Vector3(30, -135, 0)  # Opposite side from sun
+	add_child(fill_light)
+
+
+func _setup_arena() -> void:
+	var arena := TestArenaGenerator.new()
+	arena.name = "Arena"
+	arena.arena_size = 2000.0  # 2km radius, 4km diameter - more room to fly
+	arena.asteroid_count = 50  # More asteroids
+	arena.min_asteroid_size = 10.0  # Small rocks for variety
+	arena.max_asteroid_size = 200.0  # Some large ones to fly around
+	arena.min_spacing = 100.0
+	add_child(arena)
+
+
+func _setup_player_ship() -> void:
+	var player_ship := PlayerShip.new()
+	player_ship.name = "PlayerShip"
+	player_ship.mass = 5000.0  # 5 tons
+
+	# Start near asteroids
+	player_ship.global_position = Vector3(0, 0, -100)
+
+	# Create ship visual
+	var mesh_instance := MeshInstance3D.new()
+	var box_mesh := BoxMesh.new()
+	box_mesh.size = Vector3(3, 1.5, 6)
+	mesh_instance.mesh = box_mesh
+
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.2, 0.3, 0.6)
+	material.metallic = 0.8
+	material.roughness = 0.3
+	mesh_instance.material_override = material
+	player_ship.add_child(mesh_instance)
+
+	# Create collision shape
+	var collision_shape := CollisionShape3D.new()
+	var box_shape := BoxShape3D.new()
+	box_shape.size = Vector3(3, 1.5, 6)
+	collision_shape.shape = box_shape
+	player_ship.add_child(collision_shape)
+
+	player_ship.collision_layer = 1
+	player_ship.collision_mask = 2 | 4
+
+	add_child(player_ship)
+
+
+func _setup_camera() -> void:
+	var player_ship := get_node_or_null("PlayerShip")
+	if not player_ship:
+		return
+
+	var camera_rig := ShipCameraRig.new()
+	camera_rig.name = "CameraRig"
+	camera_rig.target_ship = player_ship
+	camera_rig.follow_distance = 20.0
+	camera_rig.follow_height = 8.0
+	add_child(camera_rig)
+
+	player_ship.camera_rig_path = camera_rig.get_path()
+	player_ship._camera_rig = camera_rig
+
+
+func _setup_hud() -> void:
+	var hud_root := CanvasLayer.new()
+	hud_root.name = "HUD"
+
+	var hud := ShipHUD.new()
+	hud.anchor_right = 1.0
+	hud.anchor_bottom = 1.0
+	_create_hud_elements(hud)
+
+	hud_root.add_child(hud)
+	add_child(hud_root)
+
+
+func _create_hud_elements(parent: ShipHUD) -> void:
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	parent.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	margin.add_child(vbox)
+
+	var speed_label := Label.new()
+	speed_label.add_theme_font_size_override("font_size", 24)
+	vbox.add_child(speed_label)
+	parent.speed_label = speed_label
+
+	var velocity_label := Label.new()
+	velocity_label.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(velocity_label)
+	parent.velocity_label = velocity_label
+
+	var assist_label := Label.new()
+	assist_label.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(assist_label)
+	parent.assist_label = assist_label
+
+	var camera_label := Label.new()
+	camera_label.add_theme_font_size_override("font_size", 18)
+	camera_label.text = "[C] Camera: Third Person"
+	vbox.add_child(camera_label)
+	parent.camera_mode_label = camera_label
+
+	var gforce_label := Label.new()
+	gforce_label.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(gforce_label)
+	parent.gforce_label = gforce_label
+
+	var boost_bar := ProgressBar.new()
+	boost_bar.custom_minimum_size = Vector2(200, 20)
+	boost_bar.show_percentage = false
+	vbox.add_child(boost_bar)
+	parent.boost_bar = boost_bar
+
+	var instructions := Label.new()
+	instructions.add_theme_font_size_override("font_size", 14)
+	instructions.text = """
+Mouse - Steer | W/S - Speed Up/Down | Q/E - Roll
+Shift - Boost | C - Camera | ESC - Pause
+"""
+	instructions.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	margin.add_child(instructions)
+
+
+func _setup_debug_visualization() -> void:
+	var player_ship := get_node_or_null("PlayerShip")
+	if not player_ship:
+		return
+
+	var debug_visualizer := ShipDebugVisualizer.new()
+	debug_visualizer.name = "DebugVisualizer"
+	debug_visualizer.target_ship = player_ship
+	add_child(debug_visualizer)
 
 
 func _create_debug_marker(pos: Vector3, color: Color) -> MeshInstance3D:
