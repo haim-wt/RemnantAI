@@ -1,0 +1,40 @@
+# Godot 4+ specific ignores
+.godot/
+
+# Godot-specific ignores
+*.translation
+
+# Imported textures and samples
+.import/
+
+# Logs
+logs/
+*.log
+
+# Build outputs
+build/
+export/
+*.exe
+*.x86_64
+*.pck
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# GDExtension build artifacts
+addons/*/bin/
+*.os
+*.o
+*.obj
+
+# Rust/Cargo (for GDExtension)
+target/
+Cargo.lock
