@@ -8,7 +8,7 @@ namespace Remnant.Debug;
 /// <summary>
 /// Debug overlay for flight testing.
 /// Shows velocity vectors, thrust vectors, trajectory prediction, and physics data.
-/// Toggle with F3 key.
+/// Toggle with F5 key.
 /// </summary>
 public partial class FlightDebugOverlay : CanvasLayer
 {
@@ -61,6 +61,24 @@ public partial class FlightDebugOverlay : CanvasLayer
 
         Build3DVisualization();
         Build2DOverlay();
+
+        // Try to find existing ship (in case we were added after ship spawned)
+        FindExistingShip();
+    }
+
+    private void FindExistingShip()
+    {
+        // Look for PlayerShip in the scene tree
+        var ships = GetTree().GetNodesInGroup("player_ships");
+        if (ships.Count > 0 && ships[0] is PlayerShip playerShip)
+        {
+            _ship = playerShip;
+            return;
+        }
+
+        // Fallback: search by node name
+        var root = GetTree().Root;
+        _ship = root.FindChild("PlayerShip", true, false) as PlayerShip;
     }
 
     public override void _ExitTree()
@@ -71,8 +89,8 @@ public partial class FlightDebugOverlay : CanvasLayer
 
     public override void _Input(InputEvent @event)
     {
-        // Toggle debug overlay with F3
-        if (@event is InputEventKey key && key.Pressed && key.Keycode == Key.F3)
+        // Toggle debug overlay with F5
+        if (@event is InputEventKey key && key.Pressed && key.Keycode == Key.F5)
         {
             _isVisible = !_isVisible;
             if (_overlay != null)
@@ -165,7 +183,7 @@ public partial class FlightDebugOverlay : CanvasLayer
         var vbox = new VBoxContainer();
         panel.AddChild(vbox);
 
-        var titleLabel = new Label { Text = "FLIGHT DEBUG (F3 to toggle)" };
+        var titleLabel = new Label { Text = "FLIGHT DEBUG (F5 to toggle)" };
         titleLabel.AddThemeFontSizeOverride("font_size", 14);
         titleLabel.AddThemeColorOverride("font_color", new Color(1, 1, 0));
         vbox.AddChild(titleLabel);

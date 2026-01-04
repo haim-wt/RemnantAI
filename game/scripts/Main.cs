@@ -207,7 +207,7 @@ public partial class Main : Node3D
         };
         AddChild(debugOverlay);
 
-        GD.Print("Debug overlay enabled (press F3 to toggle)");
+        GD.Print("Debug overlay enabled (press F5 to toggle)");
     }
 
     private MeshInstance3D CreateDebugMarker(Vector3 pos, Color color)
