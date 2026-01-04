@@ -26,51 +26,58 @@ This development plan outlines the roadmap for building **Remnant**, a multiplay
 - [x] Utility systems (MathUtils, DebugUtils, ObjectPool)
 - [x] Conventions document
 
-### 1.2 Flight Model Implementation 🔄 CURRENT FOCUS
-- [ ] **Ship Controls**
-  - [ ] Input mapping system (keyboard + gamepad)
-  - [ ] Thrust vector control (6DOF: forward/back, up/down, left/right, pitch/yaw/roll)
-  - [ ] Throttle management system
-  - [ ] RCS thruster positioning and simulation
+### 1.2 Flight Model Implementation ✓ COMPLETED
 
-- [ ] **Flight Assist System**
-  - [ ] Design assist levels (OFF, LOW, MEDIUM, HIGH)
-  - [ ] Velocity matching algorithm (maintain speed in nose direction)
-  - [ ] Graduated assistance implementation
-  - [ ] Visual feedback for assist level
-  - [ ] Efficiency penalty system (if applicable)
+- [x] **Ship Controls**
+  - [x] Input mapping system (keyboard + gamepad)
+  - [x] Thrust vector control (6DOF: forward/back, up/down, left/right, pitch/yaw/roll)
+  - [x] Throttle management system (W/S for speed, A/D/Space/Ctrl for strafe)
+  - [x] RCS thruster simulation (separate velocity tracking)
 
-- [ ] **Camera System**
-  - [ ] Third-person camera with dynamic follow
-  - [ ] First-person cockpit view
-  - [ ] Camera smoothing for high-speed movement
-  - [ ] Look-around capability
+- [x] **Fly-By-Wire System** (replaces Flight Assist)
+  - [x] POV-based control (pilot controls where they WANT to go)
+  - [x] Separate velocity tracking (thrust + RCS)
+  - [x] Velocity matching algorithm
+  - [x] Visual feedback for maneuvering status
+  - [x] See [FLIGHT_SYSTEM.md](game/docs/FLIGHT_SYSTEM.md) for details
 
-- [ ] **Ship HUD**
-  - [ ] Velocity indicator (vector and magnitude)
-  - [ ] Orientation reference
-  - [ ] Thrust output display
-  - [ ] Assist level indicator
-  - [ ] Basic targeting reticle
+- [x] **Camera System**
+  - [x] Third-person camera with dynamic follow
+  - [x] Camera smoothing for high-speed movement
+  - [x] POV-aligned camera orientation
+  - [ ] First-person cockpit view (future)
+  - [ ] Look-around capability (future)
 
-### 1.3 Test Environment
-- [ ] Simple test arena scene
-  - [ ] Basic asteroid placement (manual, 5-10 large asteroids)
-  - [ ] Collision detection setup
-  - [ ] Boundary markers (10km test space)
-- [ ] Debug visualization
-  - [ ] Velocity vectors
-  - [ ] Thrust vectors
-  - [ ] Trajectory prediction lines
-  - [ ] Physics data overlay
+- [x] **Ship HUD**
+  - [x] Velocity indicator (speed display)
+  - [x] Orientation reference (thruster indicator)
+  - [x] Target speed display
+  - [x] Status indicator (CRUISE/MANEUVER)
+  - [x] 3D attitude hologram
+  - [x] Basic targeting reticle
 
-### 1.4 Milestone: Playable Flight Demo
+### 1.3 Test Environment ✓ COMPLETED
+
+- [x] Simple test arena scene
+  - [x] Basic asteroid placement (50 asteroids with procedural placement)
+  - [x] Collision detection setup (StaticBody3D with SphereShape3D)
+  - [x] Boundary markers (5km radius spherical boundary with wireframe)
+- [x] Debug visualization (FlightDebugOverlay - toggle with F3)
+  - [x] Velocity vectors (green)
+  - [x] Thrust vectors (orange)
+  - [x] RCS vectors (blue)
+  - [x] Trajectory prediction lines (yellow)
+  - [x] Physics data overlay (position, velocity, alignment, status)
+
+### 1.4 Milestone: Playable Flight Demo ✓ ACHIEVED
+
 **Success Criteria:**
-- Player can pilot a ship with full 6DOF control
-- Flight assist demonstrably helps with maneuvering
-- Ship collides correctly with asteroids
-- Flight feels responsive and skill-based
-- HUD provides clear feedback on ship state
+
+- [x] Player can pilot a ship with full 6DOF control
+- [x] Fly-by-wire system provides intuitive flight control
+- [x] Ship collides correctly with asteroids
+- [x] Flight feels responsive and skill-based
+- [x] HUD provides clear feedback on ship state
 
 ---
 

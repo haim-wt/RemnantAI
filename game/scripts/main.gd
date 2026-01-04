@@ -168,70 +168,38 @@ func _setup_camera() -> void:
 
 
 func _setup_hud() -> void:
+	var player_ship := get_node_or_null("PlayerShip")
+	if not player_ship:
+		return
+
+	# Create 2D cockpit HUD overlay
+	var CockpitScript: GDScript = load("res://scripts/ui/cockpit.gd")
+	var cockpit: CanvasLayer = CockpitScript.new()
+	cockpit.name = "Cockpit"
+	cockpit.set("target_ship", player_ship)
+	add_child(cockpit)
+
+	# Also keep a minimal 2D overlay for instructions
 	var hud_root := CanvasLayer.new()
 	hud_root.name = "HUD"
 
-	var hud := ShipHUD.new()
-	hud.anchor_right = 1.0
-	hud.anchor_bottom = 1.0
-	_create_hud_elements(hud)
-
-	hud_root.add_child(hud)
-	add_child(hud_root)
-
-
-func _create_hud_elements(parent: ShipHUD) -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 20)
 	margin.add_theme_constant_override("margin_top", 20)
 	margin.add_theme_constant_override("margin_right", 20)
 	margin.add_theme_constant_override("margin_bottom", 20)
-	parent.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	margin.add_child(vbox)
-
-	var speed_label := Label.new()
-	speed_label.add_theme_font_size_override("font_size", 24)
-	vbox.add_child(speed_label)
-	parent.speed_label = speed_label
-
-	var velocity_label := Label.new()
-	velocity_label.add_theme_font_size_override("font_size", 18)
-	vbox.add_child(velocity_label)
-	parent.velocity_label = velocity_label
-
-	var assist_label := Label.new()
-	assist_label.add_theme_font_size_override("font_size", 18)
-	vbox.add_child(assist_label)
-	parent.assist_label = assist_label
-
-	var camera_label := Label.new()
-	camera_label.add_theme_font_size_override("font_size", 18)
-	camera_label.text = "[C] Camera: Third Person"
-	vbox.add_child(camera_label)
-	parent.camera_mode_label = camera_label
-
-	var gforce_label := Label.new()
-	gforce_label.add_theme_font_size_override("font_size", 18)
-	vbox.add_child(gforce_label)
-	parent.gforce_label = gforce_label
-
-	var boost_bar := ProgressBar.new()
-	boost_bar.custom_minimum_size = Vector2(200, 20)
-	boost_bar.show_percentage = false
-	vbox.add_child(boost_bar)
-	parent.boost_bar = boost_bar
+	hud_root.add_child(margin)
 
 	var instructions := Label.new()
 	instructions.add_theme_font_size_override("font_size", 14)
-	instructions.text = """
-Mouse - Steer | W/S - Speed Up/Down | Q/E - Roll
-Shift - Boost | C - Camera | ESC - Pause
-"""
+	instructions.text = "Mouse - Steer | W/S - Speed | Q/E - Roll | Shift - Boost | C - Camera"
 	instructions.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	instructions.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	instructions.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	margin.add_child(instructions)
+
+	add_child(hud_root)
 
 
 func _setup_debug_visualization() -> void:
